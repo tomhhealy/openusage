@@ -167,7 +167,12 @@
         clearCachedToken(ctx);
         const fallback = loadTokenFromGhCli(ctx);
         if (fallback) {
-          resp = fetchUsage(ctx, fallback.token);
+          try {
+            resp = fetchUsage(ctx, fallback.token);
+          } catch (e) {
+            ctx.host.log.error("fallback usage request exception: " + String(e));
+            throw "Usage request failed. Check your connection.";
+          }
           if (resp.status >= 200 && resp.status < 300) {
             // Fallback worked, persist the new token
             saveToken(ctx, fallback.token);
